@@ -30,7 +30,7 @@ myTable:
 start:	
 	movlw  0xff		    ;Implementing program to pause/unpause the LED Flashes
 	movwf  TRISD,A             ; Set PORTD to inputs
-	movlw	0x80
+	movlw	0x80		    ;setting the 7th bit to be the pause button
 	movwf	0x06,A
 	movlw	0x0
 	movwf	TRISC, A
@@ -48,9 +48,9 @@ loop:
 	cpfsgt	0x06		    ;if any button is pressed, then program is paused.
 	bra	loop
 	;moving PORTD to the counters, so speed can be changed using buttons		;movlw	0x10
-	movwf	0x20, A
-	movwf	0x22, A
-	movwf	0x24, A
+	movwf	0x20, A		;counter1
+	movwf	0x22, A		;counter2
+	movwf	0x24, A		;counter3
 	call	delay
         tblrd*+			; move one byte from PM to TABLAT, increment TBLPRT
 	movff	TABLAT, POSTINC0	; move read data from TABLAT to (FSR0), increment FSR0	
