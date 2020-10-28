@@ -8,18 +8,61 @@ main:
 	
 	org 0x100		    ; Main code starts here at address 0x10
 	
-	; ******* Programme FLASH read Setup Code ****  
+	; setting ports 
 setup:	
-	bcf	CFGS	; point to Flash program memory  
-	bsf	EEPGD 	; access Flash program memory
+	movlw	0xf0		    ;setting portD to 11110000, bits 0-3 is ued for control lines
+	movwf	TRISD,A
+	movlw	0x0f
+	movwf	PORTD,A		    ;setting cp1 and cp2 ,oe1,2 to high voltage
+	setf	TRISE		    ;setting portE pull ups.
+	banksel	PADCFG1
+	bsf	RDPU
+	movlb	0x00
+	bcf	CFGS		    ; point to Flash program memory  
+	bsf	EEPGD		    ; access Flash program memory
 	goto	start
-	; ******* My data and where to put it in RAM *
-myTable:
-	db	'1','a','3','b','5','c','7','8','9'
-	db	'1'
-	myArray EQU 0x400	; Address in RAM for data
-	counter EQU 0x10	; Address of counter variable
- delay: decfsz	0x20, 1
+	
+write1:movlw	0x0f		    ;making sure oe1,2 are high
+	movwf	PORTD,A
+	clrf	TRISE,A		    ;setting portE to outputs
+	movf	PORTC,W,A	    ;placing data on PORTE
+	movwf	PORTE,A
+	movlw	0x07		    ;pulling cp1 to low
+	movwf	PORTD,A
+	movlw	0x0f		    ;pulling cp1 high to write to chip1
+	movwf	PORTD,A
+	return
+	
+write2:movlw	0x0f		    ;making sure oe1,2 are high
+	movwf	PORTD,A
+	clrf	TRISE,A		    ;setting portE to outputs
+	movf	PORTC,W,A	    ;placing data on PORTE
+	movwf	PORTE,A
+	movlw	0x0b		    ;pulling cp2 to low
+	movwf	PORTD,A
+	movlw	0x0f		    ;pulling cp2 high to write to chip2
+	movwf	PORTD,A
+	return
+	
+read1: movlw	0x0f		    ;making sure oe1,2 are high
+	movwf	PORTD,A
+	clrf	PORTE,A
+	movlw	0xff		    ;setting portE to input
+	movwf	TRISE,A
+	movlw	0x0d		    ;pulling oe1 low to read data from chip 1.
+	movwf	PORTD,A
+	return
+	
+read2: movlw	0x0f		    ;making sure oe1,2 are high
+	movwf	PORTD,A
+	clrf	PORTE,A
+	movlw	0xff		    ;setting portE to input
+	movwf	TRISE,A
+	movlw	0x0e		    ;pulling oe2 low to read data from chip 1.
+	movwf	PORTD,A
+	return
+	
+delay: decfsz	0x20, 1
 	bra delay
 	decfsz	0x22,1
 	bra delay
@@ -28,21 +71,16 @@ myTable:
 	return
 	; ******* Main programme *********************
 start:	
-	movlw  0xff		    ;Implementing program to pause/unpause the LED Flashes
-	movwf  TRISD,A             ; Set PORTD to inputs
-	movlw	0x80		    ;setting the 7th bit to be the pause button
-	movwf	0x06,A
-	movlw	0x0
-	movwf	TRISC, A
-	lfsr	0, myArray	; Load FSR0 with address in RAM	
-	movlw	low highword(myTable)	; address of data in PM
-	movwf	TBLPTRU, A	; load upper bits to TBLPTRU
-	movlw	high(myTable)	; address of data in PM
-	movwf	TBLPTRH, A	; load high byte to TBLPTRH
-	movlw	low(myTable)	; address of data in PM
-	movwf	TBLPTRL, A	; load low byte to TBLPTRL
-	movlw	10		; 22 bytes to read
-	movwf 	counter, A	; our counter register
+	movlw	0xff		;setting portC to inputs
+	movwf	TRISC,A
+	call	write1
+	clrf	PORTE,A
+	call	read1
+	call	write2
+	clrf	PORTE,A
+	call	read2
+	
+	end	main
 loop:
 	movf	PORTD, W, A	    ; moving input value into W
 	cpfsgt	0x06		    ;if any button is pressed, then program is paused.
@@ -62,5 +100,5 @@ loop:
 	
 	goto	0
 
-	end	main
+	
 
