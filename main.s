@@ -4,7 +4,7 @@
 psect	code, abs
 main:
 	org 0x0
-	goto	spi_masterinit
+	bra	spi_masterinit
 	goto	start
 	
 	org 0x100		    ; Main code starts here at address 0x10
@@ -12,19 +12,30 @@ main:
 	; setting ports 
 spi_masterinit:
 	bcf	CKE		    ;cke bit in ssp2stat
-	movlw	(SSP2CON1_SSPEN_MASK)(SSP2CON1_CKP_MASK)(SSP2CON1_SSPM1_MASK)
+	movlw	SSP2CON1_SSPEN_MASK
+	movwf	SSP2CON1,A
+	movlw	SSP2CON1_CKP_MASK
+	movwf	SSP2CON1,A
+	movlw	SSP2CON1_SSPM1_MASK
 	movwf	SSP2CON1,A
 	;sdo2 output, sck2 output
 	bcf	TRISD,PORTD_SDO2_POSN,A
 	bcf	TRISD,PORTD_SCK2_POSN,A
-	return
 	
+start:	
+	movlw	0xaa	    ;data is 0xaa
+	call	spi_mastertransmit
+	call	wait_transmit
+	call	delay
 	
+	goto	start
+			
 spi_mastertransmit:
 	
 	movwf	SSP2BUF,A   ;write data to output buffer
 	return
 	
+
 wait_transmit:
 	btfss	SSP2IF	    ;check interrupt bit
 	bra	wait_transmit
@@ -45,14 +56,7 @@ delay: movlw	0x01
 	bra delay1
 	return
 	; ******* Main programme *********************
-start:	
-	movlw	0xaa	    ;data is 0xaa
-	call	spi_mastertransmit
-	call	wait_transmit
-	call	delay
-	
-	goto	start
-	end	main
+end	main	
 
 	
 
