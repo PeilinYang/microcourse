@@ -16,8 +16,10 @@ psect	lcd_code,class=CODE
     
 LCD_Setup:
 	clrf    LATB, A
-	movlw   11000000B	    ; RB0:5 all outputs
+	movlw   11000000B	    ; RB0:5 all outputs (instruction 
 	movwf	TRISB, A
+	clrf	LATD,A
+	setf	TRISD,A		    ; portD all outputs (dataline
 	movlw   40
 	call	LCD_delay_ms	; wait 40ms for LCD to start up properly
 	movlw	00110000B	; Function set 4-bit
