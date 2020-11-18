@@ -11,6 +11,7 @@ LCD_counter:	ds 1   ; reserve 1 byte for counting through nessage
 
 	LCD_E	EQU 4	; LCD enable bit
     	LCD_RS	EQU 2	; LCD register select bit
+	LCD_RW	EQU 3	; LCD read/write select bit
 	LCD_CS1 EQU 0	;left column select
 	LCD_CS2 EQU 1	;right column select
 	LCD_cmd EQU PORTB
@@ -61,37 +62,28 @@ LCD_Loop_message:
 	bra	LCD_Loop_message
 	return
 
-LCD_Send_Byte_I:	    ; Transmits byte stored in W to instruction reg
-	movwf   LCD_tmp, A
-	swapf   LCD_tmp, W, A   ; swap nibbles, high nibble goes first
-	andlw   0x0f	    ; select just low nibble
-	movwf   LATB, A	    ; output data bits to LCD
-	bcf	LATB, LCD_RS, A	; Instruction write clear RS bit
+LCD_write_cmd:	    ; Transmits byte stored in W to instruction reg
+	movwf   PORTD, A
+	movwf   LATD, A	    ; output data bits to LCD
+	bcf	LATB, LCD_RW,A	;data write, RW = 0
+	bcf	LATB, LCD_RS, A	; setting write cmd, RS = 0
 	call    LCD_Enable  ; Pulse enable Bit 
-	movf	LCD_tmp, W, A   ; swap nibbles, now do low nibble
-	andlw   0x0f	    ; select just low nibble
-	movwf   LATB, A	    ; output data bits to LCD
-	bcf	LATB, LCD_RS, A	; Instruction write clear RS bit
-        call    LCD_Enable  ; Pulse enable Bit 
+	movlw	10	    ; delay 40us
+	call	LCD_delay_x4us
 	return
 
-LCD_Send_Byte_D:	    ; Transmits byte stored in W to data reg (PORTD
+LCD_write_data:	    ; Transmits byte stored in W to data reg(PORTD ,then to the LCD
 	movwf   PORTD, A
-	swapf   LCD_tmp, W, A	; swap nibbles, high nibble goes first
-	andlw   0x0f	    ; select just low nibble
 	movwf   LATD, A	    ; output data bits to LCD
-	bsf	LATD, LCD_RS, A	; Data write set RS bit
+	bcf	LATB, LCD_RW,A	;data write, RW = 0
+	bsf	LATB, LCD_RS, A	; Data write set RS = 1
 	call    LCD_Enable  ; Pulse enable Bit 
-	movf	LCD_tmp, W, A	; swap nibbles, now do low nibble
-	andlw   0x0f	    ; select just low nibble
-	movwf   LATD, A	    ; output data bits to LCD
-	bsf	LATD, LCD_RS, A	; Data write set RS bit	    
-        call    LCD_Enable  ; Pulse enable Bit 
 	movlw	10	    ; delay 40us
 	call	LCD_delay_x4us
 	return
 
 LCD_Enable:	    ; pulse enable bit LCD_E for 500ns
+	bcf	LATB, LCD_E, A	    ;put enable low
 	nop
 	nop
 	nop
