@@ -9,8 +9,12 @@ LCD_cnt_ms:	ds 1   ; reserve 1 byte for ms counter
 LCD_tmp:	ds 1   ; reserve 1 byte for temporary use
 LCD_counter:	ds 1   ; reserve 1 byte for counting through nessage
 
-	LCD_E	EQU 5	; LCD enable bit
-    	LCD_RS	EQU 4	; LCD register select bit
+	LCD_E	EQU 4	; LCD enable bit
+    	LCD_RS	EQU 2	; LCD register select bit
+	LCD_CS1 EQU 0	;left column select
+	LCD_CS2 EQU 1	;right column select
+	LCD_cmd EQU PORTB
+	LCD_data equ PORTD
 
 psect	lcd_code,class=CODE
     
@@ -71,17 +75,17 @@ LCD_Send_Byte_I:	    ; Transmits byte stored in W to instruction reg
         call    LCD_Enable  ; Pulse enable Bit 
 	return
 
-LCD_Send_Byte_D:	    ; Transmits byte stored in W to data reg
-	movwf   LCD_tmp, A
+LCD_Send_Byte_D:	    ; Transmits byte stored in W to data reg (PORTD
+	movwf   PORTD, A
 	swapf   LCD_tmp, W, A	; swap nibbles, high nibble goes first
 	andlw   0x0f	    ; select just low nibble
-	movwf   LATB, A	    ; output data bits to LCD
-	bsf	LATB, LCD_RS, A	; Data write set RS bit
+	movwf   LATD, A	    ; output data bits to LCD
+	bsf	LATD, LCD_RS, A	; Data write set RS bit
 	call    LCD_Enable  ; Pulse enable Bit 
 	movf	LCD_tmp, W, A	; swap nibbles, now do low nibble
 	andlw   0x0f	    ; select just low nibble
-	movwf   LATB, A	    ; output data bits to LCD
-	bsf	LATB, LCD_RS, A	; Data write set RS bit	    
+	movwf   LATD, A	    ; output data bits to LCD
+	bsf	LATD, LCD_RS, A	; Data write set RS bit	    
         call    LCD_Enable  ; Pulse enable Bit 
 	movlw	10	    ; delay 40us
 	call	LCD_delay_x4us

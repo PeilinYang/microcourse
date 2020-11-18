@@ -13,9 +13,9 @@ myArray:    ds 0x80 ; reserve 128 bytes for message data
 psect	data    
 	; ******* myTable, data in programme memory, and its length *****
 myTable:
-	db	'H','e','l','l','o',' ','W','o','r','l','d','!',0x0a
+	db	'O',0x0a
 					; message, plus carriage return
-	myTable_l   EQU	13	; length of data
+	myTable_l   EQU	1	; length of data
 	align	2
     
 psect	code, abs	
@@ -26,7 +26,7 @@ rst: 	org 0x0
 setup:	bcf	CFGS	; point to Flash program memory  
 	bsf	EEPGD 	; access Flash program memory
 	call	UART_Setup	; setup UART
-	call	LCD_Setup	; setup UART
+	call	LCD_Setup	; setup LCD
 	goto	start
 	
 	; ******* Main programme ****************************************
@@ -44,10 +44,6 @@ loop: 	tblrd*+			; one byte from PM to TABLAT, increment TBLPRT
 	decfsz	counter, A		; count down to zero
 	bra	loop		; keep going until finished
 		
-	movlw	myTable_l	; output message to UART
-	lfsr	2, myArray
-	call	UART_Transmit_Message
-
 	movlw	myTable_l	; output message to LCD
 	addlw	0xff		; don't send the final carriage return to LCD
 	lfsr	2, myArray
