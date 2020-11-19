@@ -8,12 +8,14 @@ LCD_cnt_h:	ds 1   ; reserve 1 byte for variable LCD_cnt_h
 LCD_cnt_ms:	ds 1   ; reserve 1 byte for ms counter
 LCD_tmp:	ds 1   ; reserve 1 byte for temporary use
 LCD_counter:	ds 1   ; reserve 1 byte for counting through nessage
+    
 
 	LCD_E	EQU 4	; LCD enable bit
     	LCD_RS	EQU 2	; LCD register select bit
 	LCD_RW	EQU 3	; LCD read/write select bit
 	LCD_CS1 EQU 0	;left column select
 	LCD_CS2 EQU 1	;right column select
+	LCD_data equ 0x20,A
 	LCD_cmd EQU PORTB
 	LCD_data equ PORTD
 
@@ -48,7 +50,15 @@ LCD_write_data:	    ; Transmits byte stored in W to data reg(PORTD ,then to the 
 	movlw	10	    ; delay 40us
 	call	LCD_delay_x4us
 	return
+LCD_write_1:
+	movlw	0xfe
+	movwf	LCD_data
+	return
 
+LCD_clear:
+	movlw	0x00
+	movwf	LCD_data
+	return
 LCD_Block1:
 	bsf	PORTB, LCD_CS1,A    ;select column 0
 	bcf	PORTB, LCD_CS2,A    ;not select column 1
@@ -56,7 +66,7 @@ LCD_Block1:
 	call	LCD_write_cmd	    ;send instruction to LCD
 	movlw	0x20		    ;want to write in 0-31 cursor positions, 0x20 = 32
 	movwf	LCD_counter,A
-	movlw	0xfe		    ;data to be displayed(want a solid block so all bits are 1)
+	movf	LCD_data, W, A		    ;data to be displayed(want a solid block so all bits are 1)
     loop1:
 	call	LCD_write_data
 	decfsz	LCD_counter,A
@@ -72,7 +82,7 @@ LCD_Block2:
 	call	LCD_write_cmd
 	movlw	0x20		    ;want to write in 32-63 cursor positions, 0x20 = 32
 	movwf	LCD_counter,A
-	movlw	0xfe		    ;data to be displayed
+	movf	LCD_data, W, A		    ;data to be displayed
     loop2:
 	call	LCD_write_data
 	decfsz	LCD_counter,A
@@ -86,7 +96,7 @@ LCD_Block5:
 	call	LCD_write_cmd	    ;send instruction to LCD
 	movlw	0x20		    ;want to write in 0-31 cursor positions, 0x20 = 32
 	movwf	LCD_counter,A
-	movlw	0xfe		    ;data to be displayed
+	movf	LCD_data, W, A		    ;data to be displayed
     loop5:
 	call	LCD_write_data
 	decfsz	LCD_counter,A
@@ -100,7 +110,7 @@ LCD_Block9:
 	call	LCD_write_cmd	    ;send instruction to LCD
 	movlw	0x20		    ;want to write in 32 cursor positions, 0x20 = 32
 	movwf	LCD_counter,A
-	movlw	0xfe		    ;data to be displayed
+	movf	LCD_data, W, A		    ;data to be displayed
     loop9:
 	call	LCD_write_data
 	decfsz	LCD_counter,A
@@ -116,7 +126,7 @@ LCD_Block6:
 	call	LCD_write_cmd
 	movlw	0x20		    ;want to write in 32-63 cursor positions, 0x20 = 32
 	movwf	LCD_counter,A
-	movlw	0xfe		    ;data to be displayed
+	movf	LCD_data, W, A		    ;data to be displayed
     loop6:
 	call	LCD_write_data
 	decfsz	LCD_counter,A
@@ -132,7 +142,7 @@ LCD_Block10:
 	call	LCD_write_cmd
 	movlw	0x20		    ;want to write in 32-63 cursor positions, 0x20 = 32
 	movwf	LCD_counter,A
-	movlw	0xfe		    ;data to be displayed
+	movf	LCD_data, W, A		    ;data to be displayed
     loop10:
 	call	LCD_write_data
 	decfsz	LCD_counter,A
@@ -146,7 +156,7 @@ LCD_Block3:
 	call	LCD_write_cmd	    ;send instruction to LCD
 	movlw	0x20		    ;want to write in 0-31 cursor positions, 0x20 = 32
 	movwf	LCD_counter,A
-	movlw	0xfe		    ;data to be displayed(want a solid block so all bits are 1)
+	movf	LCD_data, W, A		    ;data to be displayed(want a solid block so all bits are 1)
     loop3:
 	call	LCD_write_data
 	decfsz	LCD_counter,A
@@ -160,7 +170,7 @@ LCD_Block7:
 	call	LCD_write_cmd	    ;send instruction to LCD
 	movlw	0x20		    ;want to write in 0-31 cursor positions, 0x20 = 32
 	movwf	LCD_counter,A
-	movlw	0xfe		    ;data to be displayed(want a solid block so all bits are 1)
+	movf	LCD_data, W, A		    ;data to be displayed(want a solid block so all bits are 1)
     loop7:
 	call	LCD_write_data
 	decfsz	LCD_counter,A
@@ -174,7 +184,7 @@ LCD_Block11:
 	call	LCD_write_cmd	    ;send instruction to LCD
 	movlw	0x20		    ;want to write in 0-31 cursor positions, 0x20 = 32
 	movwf	LCD_counter,A
-	movlw	0xfe		    ;data to be displayed(want a solid block so all bits are 1)
+	movf	LCD_data, W, A		    ;data to be displayed(want a solid block so all bits are 1)
     loop11:
 	call	LCD_write_data
 	decfsz	LCD_counter,A
@@ -190,7 +200,7 @@ LCD_Block4:
 	call	LCD_write_cmd
 	movlw	0x20		    ;want to write in 32-63 cursor positions, 0x20 = 32
 	movwf	LCD_counter,A
-	movlw	0xfe		    ;data to be displayed
+	movf	LCD_data, W, A		    ;data to be displayed
     loop4:
 	call	LCD_write_data
 	decfsz	LCD_counter,A
@@ -206,7 +216,7 @@ LCD_Block8:
 	call	LCD_write_cmd
 	movlw	0x20		    ;want to write in 32-63 cursor positions, 0x20 = 32
 	movwf	LCD_counter,A
-	movlw	0xfe		    ;data to be displayed
+	movf	LCD_data, W, A		    ;data to be displayed
     loop8:
 	call	LCD_write_data
 	decfsz	LCD_counter,A
@@ -222,7 +232,7 @@ LCD_Block12:
 	call	LCD_write_cmd
 	movlw	0x20		    ;want to write in 32-63 cursor positions, 0x20 = 32
 	movwf	LCD_counter,A
-	movlw	0xfe		    ;data to be displayed
+	movf	LCD_data, W, A		    ;data to be displayed
     loop12:
 	call	LCD_write_data
 	decfsz	LCD_counter,A
