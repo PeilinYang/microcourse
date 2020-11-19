@@ -27,6 +27,12 @@ LCD_Setup:
 	movwf	TRISB, A
 	clrf	LATD,A
 	clrf	TRISD,A		    ; portD all outputs (dataline
+	movlw	00111110B
+	call	LCD_write_cmd	    ;display off
+	movlw	10		; wait 40us
+	call	LCD_delay_x4us
+	movlw	00111111B
+	call	LCD_write_cmd	    ;display on
 	movlw	10		; wait 40us
 	call	LCD_delay_x4us
 	return
