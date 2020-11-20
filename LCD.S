@@ -1,6 +1,6 @@
 #include <xc.inc>
 
-global  LCD_Setup,LCD_Block1,LCD_Block2,LCD_Block3,LCD_Block4,LCD_Block5,LCD_Block6,LCD_Block7,LCD_Block8,LCD_Block9,LCD_Block10,LCD_Block11,LCD_Block12
+global  LCD_Setup,LCD_find_pos,
 
 psect	udata_acs   ; named variables in access ram
 LCD_cnt_l:	ds 1   ; reserve 1 byte for variable LCD_cnt_l
@@ -20,7 +20,33 @@ LCD_counter:	ds 1   ; reserve 1 byte for counting through nessage
 	LCD_data equ PORTD
 
 psect	lcd_code,class=CODE
-    
+
+LCD_find_pos:
+	btfsc	PORTH,0
+	call	LCD_Block1
+	btfsc	PORTH,1
+	call	LCD_Block2
+	btfsc	PORTH,2
+	call	LCD_Block3
+	btfsc	PORTH,3
+	call	LCD_Block4
+	btfsc	PORTH,4
+	call	LCD_Block5
+	btfsc	PORTH,5
+	call	LCD_Block6
+	btfsc	PORTH,6
+	call	LCD_Block7
+	btfsc	PORTH,7
+	call	LCD_Block8
+	btfsc	PORTJ,0
+	call	LCD_Block9
+	btfsc	PORTJ,1
+	call	LCD_Block10
+	btfsc	PORTJ,2
+	call	LCD_Block11
+	btfsc	PORTJ,3
+	call	LCD_Block12
+	
 LCD_Setup:
 	clrf    LATB, A
 	movlw   11000000B	    ; RB0:5 all outputs (instruction 
