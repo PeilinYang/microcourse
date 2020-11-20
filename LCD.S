@@ -1,6 +1,6 @@
 #include <xc.inc>
 
-global  LCD_Setup,LCD_find_pos,
+global  LCD_Setup,LCD_Write_Block,LCD_Clear_Block
 
 psect	udata_acs   ; named variables in access ram
 LCD_cnt_l:	ds 1   ; reserve 1 byte for variable LCD_cnt_l
@@ -15,12 +15,19 @@ LCD_counter:	ds 1   ; reserve 1 byte for counting through nessage
 	LCD_RW	EQU 3	; LCD read/write select bit
 	LCD_CS1 EQU 0	;left column select
 	LCD_CS2 EQU 1	;right column select
-	LCD_data equ 0x20,A
 	LCD_cmd EQU PORTB
 	LCD_data equ PORTD
 
 psect	lcd_code,class=CODE
 
+LCD_Write_Block:
+	call    LCD_write_1
+	call    LCD_find_pos
+	return
+	
+LCD_Clear_Block:
+	call	LCD_clear
+	call	LCD_find_pos
 LCD_find_pos:
 	btfsc	PORTH,0
 	call	LCD_Block1
