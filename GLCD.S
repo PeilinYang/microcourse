@@ -83,8 +83,8 @@ LCD_write_cmd:	    ; Transmits byte stored in W to instruction reg
 LCD_write_data:	    ; Transmits byte stored in W to data reg(PORTD ,then to the LCD
 	movwf   PORTD, A
 	movwf   LATD, A	    ; output data bits to LCD
-	bcf	LATB, LCD_RW,A	;data write, RW = 0
-	bsf	LATB, LCD_RS, A	; Data write set RS = 1
+	bcf	PORTB, LCD_RW,A	;data write, RW = 0
+	bsf	PORTB, LCD_RS, A	; Data write set RS = 1
 	call    LCD_Enable  ; Pulse enable Bit 
 	movlw	10	    ; delay 40us
 	call	LCD_delay_x4us
