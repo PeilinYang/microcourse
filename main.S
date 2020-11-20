@@ -30,9 +30,9 @@ setup:	bcf	CFGS	; point to Flash program memory
 	
 	; ******* Main programme ****************************************
 start: movlw	0x00
-	movwf	TRISH,A
+	movwf	TRISJ,A
 	movlw	00001000B
-	movwf	PORTH,A
+	movwf	PORTJ,A
 	call	LCD_Write_Block
 	goto	$		; goto current line in code
 

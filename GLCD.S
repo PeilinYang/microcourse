@@ -63,11 +63,11 @@ LCD_Setup:
 	movlw	00111110B
 	call	LCD_write_cmd	    ;display off
 	movlw	10		; wait 40us
-	call	LCD_delay_x4us
+	;call	LCD_delay_x4us
 	movlw	00111111B
 	call	LCD_write_cmd	    ;display on
 	movlw	10		; wait 40us
-	call	LCD_delay_x4us
+	;call	LCD_delay_x4us
 	return
 
 LCD_write_cmd:	    ; Transmits byte stored in W to instruction reg
@@ -77,7 +77,7 @@ LCD_write_cmd:	    ; Transmits byte stored in W to instruction reg
 	bcf	LATB, LCD_RS, A	; setting write cmd, RS = 0
 	call    LCD_Enable  ; Pulse enable Bit 
 	movlw	10	    ; delay 40us
-	call	LCD_delay_x4us
+	;call	LCD_delay_x4us
 	return
 
 LCD_write_data:	    ; Transmits byte stored in W to data reg(PORTD ,then to the LCD
@@ -87,7 +87,7 @@ LCD_write_data:	    ; Transmits byte stored in W to data reg(PORTD ,then to the 
 	bsf	PORTB, LCD_RS, A	; Data write set RS = 1
 	call    LCD_Enable  ; Pulse enable Bit 
 	movlw	10	    ; delay 40us
-	call	LCD_delay_x4us
+	;call	LCD_delay_x4us
 	return
 LCD_write_1:
 	movlw	0xfe
