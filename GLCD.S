@@ -13,8 +13,8 @@ LCD_counter:	ds 1   ; reserve 1 byte for counting through nessage
 	LCD_E	EQU 4	; LCD enable bit
     	LCD_RS	EQU 2	; LCD register select bit
 	LCD_RW	EQU 3	; LCD read/write select bit
-	LCD_CS1 EQU 0	;left column select
-	LCD_CS2 EQU 1	;right column select
+	LCD_CS1 EQU 0	; left column select
+	LCD_CS2 EQU 1	; right column select
 	LCD_cmd EQU PORTB
 	LCD_data equ PORTD
 
