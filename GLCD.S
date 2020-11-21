@@ -54,38 +54,32 @@ LCD_Setup:
 	movlw	00111110B
 	movwf	LCD_cmd
 	call	LCD_write_cmd	    ;display off
-	;movlw	10		; wait 40us
-	;call	LCD_delay_x4us
+	movlw	10		; wait 40us
+	call	LCD_delay_x4us
 	movlw	00111111B
 	movwf	LCD_cmd
 	call	LCD_write_cmd	    ;display on
 	call	LCD_Clear_all
-	;movlw	10		; wait 40us
-	;call	LCD_delay_x4us
+	movlw	10		; wait 40us
+	call	LCD_delay_x4us
 	return
 
 LCD_write_cmd:	    ; Transmits byte stored in W to instruction reg
 	movf	LCD_cmd,W,A
-	movwf   PORTD, A    ;PORTD now contains the bit configuration for different instructions.
-	;movwf   LATD, A	    ; output data bits to LCD
+	movwf   PORTD, A    ;PORTD now contains the bit configuration for different instructions. ; output data bits to LCD
 	bcf	PORTB, LCD_RW,A	;data write, RW = 0
 	bcf	PORTB, LCD_RS, A	; setting write cmd, RS = 0
-	;call	LCD_delay
+	call	LCD_delay1
 	call    LCD_Enable  ; Pulse enable Bit 
-	;movlw	10	    ; delay 40us
-	;call	LCD_delay_x4us
 	return
 
 LCD_write_data:	    ; Transmits byte stored in W to data reg(PORTD ,then to the LCD
 	movf	LCD_data,W,A
-	movwf   PORTD, A
-	;movwf   LATD, A	    ; output data bits to LCD
+	movwf   PORTD, A    ; output data bits to LCD
 	bcf	PORTB, LCD_RW,A	;data write, RW = 0
 	bsf	PORTB, LCD_RS, A	; Data write set RS = 1
-	;call	LCD_delay
+	call	LCD_delay1
 	call    LCD_Enable  ; Pulse enable Bit 
-	;movlw	10	    ; delay 40us
-	;call	LCD_delay_x4us
 	return
 LCD_write_1:
 	movlw	11111110B
@@ -99,12 +93,13 @@ LCD_clear:
 LCD_Block1:
 	bsf	PORTB, LCD_CS1,A    ;select column 0
 	bcf	PORTB, LCD_CS2,A    ;not select column 1
-	movlw	00111111B
-	movwf	LCD_cmd
-	call	LCD_write_cmd	    ;display on
+	
 	movlw	10111000B	    ;select page0 in column 0
 	movwf	LCD_cmd
 	call	LCD_write_cmd	    ;send instruction to LCD
+	movlw	11000000B	    ;start from cursor position 0
+	movwf	LCD_cmd
+	call	LCD_write_cmd
 	movlw	0x20		    ;want to write in 0-31 cursor positions, 0x20 = 32
 	movwf	LCD_counter,A
 	movf	LCD_data, W, A		    ;data to be displayed(want a solid block so all bits are 1)
@@ -117,9 +112,7 @@ LCD_Block1:
 LCD_Block2:
 	bsf	PORTB, LCD_CS1,A    ;select column 0
 	bcf	PORTB, LCD_CS2,A    ;not select column 1
-	movlw	00111111B
-	movwf	LCD_cmd
-	call	LCD_write_cmd	    ;display on
+	
 	movlw	10111000B	    ;select page0 in column 0
 	movwf	LCD_cmd
 	call	LCD_write_cmd	    ;send instruction to LCD
@@ -138,12 +131,13 @@ LCD_Block2:
 LCD_Block5:
 	bsf	PORTB, LCD_CS1,A    ;select column 0
 	bcf	PORTB, LCD_CS2,A    ;not select column 1
-	movlw	00111111B
-	movwf	LCD_cmd
-	call	LCD_write_cmd	    ;display on
+	
 	movlw	10111010B	    ;select page2 in column 0
 	movwf	LCD_cmd
 	call	LCD_write_cmd	    ;send instruction to LCD
+	movlw	11000000B	    ;start from cursor position 0
+	movwf	LCD_cmd
+	call	LCD_write_cmd
 	movlw	0x20		    ;want to write in 0-31 cursor positions, 0x20 = 32
 	movwf	LCD_counter,A
 	movf	LCD_data, W, A		    ;data to be displayed
@@ -156,12 +150,13 @@ LCD_Block5:
 LCD_Block9:
 	bsf	PORTB, LCD_CS1,A    ;select column 0
 	bcf	PORTB, LCD_CS2,A    ;not select column 1
-	movlw	00111111B
-	movwf	LCD_cmd
-	call	LCD_write_cmd	    ;display on
+	
 	movlw	10111100B	    ;select page4 in column 0
 	movwf	LCD_cmd
 	call	LCD_write_cmd	    ;send instruction to LCD
+	movlw	11000000B	    ;start from cursor position 0
+	movwf	LCD_cmd
+	call	LCD_write_cmd
 	movlw	0x20		    ;want to write in 32 cursor positions, 0x20 = 32
 	movwf	LCD_counter,A
 	movf	LCD_data, W, A		    ;data to be displayed
@@ -174,9 +169,7 @@ LCD_Block9:
 LCD_Block6:
 	bsf	PORTB, LCD_CS1,A    ;select column 0
 	bcf	PORTB, LCD_CS2,A    ;not select column 1
-	movlw	00111111B
-	movwf	LCD_cmd
-	call	LCD_write_cmd	    ;display on
+	
 	movlw	10111010B	    ;select page2 in column 0
 	movwf	LCD_cmd
 	call	LCD_write_cmd	    ;send instruction to LCD
@@ -195,9 +188,7 @@ LCD_Block6:
 LCD_Block10:
 	bsf	PORTB, LCD_CS1,A    ;select column 0
 	bcf	PORTB, LCD_CS2,A    ;not select column 1
-	movlw	00111111B
-	movwf	LCD_cmd
-	call	LCD_write_cmd	    ;display on
+	
 	movlw	10111000B	    ;select page4 in column 0
 	movwf	LCD_cmd
 	call	LCD_write_cmd	    ;send instruction to LCD
@@ -216,12 +207,13 @@ LCD_Block10:
 LCD_Block3:
 	bcf	PORTB, LCD_CS1,A    ; not select column 0
 	bsf	PORTB, LCD_CS2,A    ;select column 1
-	movlw	00111111B
-	movwf	LCD_cmd
-	call	LCD_write_cmd	    ;display on
+	
 	movlw	10111000B	    ;select page0 in column 1
 	movwf	LCD_cmd
 	call	LCD_write_cmd	    ;send instruction to LCD
+	movlw	11000000B	    ;start from cursor position 0
+	movwf	LCD_cmd
+	call	LCD_write_cmd
 	movlw	0x20		    ;want to write in 0-31 cursor positions, 0x20 = 32
 	movwf	LCD_counter,A
 	movf	LCD_data, W, A		    ;data to be displayed(want a solid block so all bits are 1)
@@ -234,12 +226,13 @@ LCD_Block3:
 LCD_Block7:
 	bcf	PORTB, LCD_CS1,A    ; not select column 0
 	bsf	PORTB, LCD_CS2,A    ;select column 1
-	movlw	00111111B
-	movwf	LCD_cmd
-	call	LCD_write_cmd	    ;display on
+	
 	movlw	10111010B	    ;select page2 in column 1
 	movwf	LCD_cmd
 	call	LCD_write_cmd	    ;send instruction to LCD
+	movlw	11000000B	    ;start from cursor position 0
+	movwf	LCD_cmd
+	call	LCD_write_cmd
 	movlw	0x20		    ;want to write in 0-31 cursor positions, 0x20 = 32
 	movwf	LCD_counter,A
 	movf	LCD_data, W, A		    ;data to be displayed(want a solid block so all bits are 1)
@@ -252,12 +245,13 @@ LCD_Block7:
 LCD_Block11:
 	bcf	PORTB, LCD_CS1,A    ;not select column 0
 	bsf	PORTB, LCD_CS2,A    ;select column 1
-	movlw	00111111B
-	movwf	LCD_cmd
-	call	LCD_write_cmd	    ;display on
+	
 	movlw	10111100B	    ;select page4 in column 1
 	movwf	LCD_cmd
 	call	LCD_write_cmd	    ;send instruction to LCD
+	movlw	11000000B	    ;start from cursor position 0
+	movwf	LCD_cmd
+	call	LCD_write_cmd
 	movlw	0x20		    ;want to write in 0-31 cursor positions, 0x20 = 32
 	movwf	LCD_counter,A
 	movf	LCD_data, W, A		    ;data to be displayed(want a solid block so all bits are 1)
@@ -270,9 +264,7 @@ LCD_Block11:
 LCD_Block4:
 	bcf	PORTB, LCD_CS1,A    ;not select column 0
 	bsf	PORTB, LCD_CS2,A    ;select column 1
-	movlw	00111111B
-	movwf	LCD_cmd
-	call	LCD_write_cmd	    ;display on
+	
 	movlw	10111000B	    ;select page0 in column 1
 	movwf	LCD_cmd
 	call	LCD_write_cmd	    ;send instruction to LCD
@@ -291,9 +283,7 @@ LCD_Block4:
 LCD_Block8:
 	bcf	PORTB, LCD_CS1,A    ;not select column 0
 	bsf	PORTB, LCD_CS2,A    ;select column 1
-	movlw	00111111B
-	movwf	LCD_cmd
-	call	LCD_write_cmd	    ;display on
+	
 	movlw	10111010B	    ;select page2 in column 1
 	movwf	LCD_cmd
 	call	LCD_write_cmd	    ;send instruction to LCD
@@ -312,9 +302,7 @@ LCD_Block8:
 LCD_Block12:
 	bcf	PORTB, LCD_CS1,A    ;not select column 0
 	bsf	PORTB, LCD_CS2,A    ;select column 1
-	movlw	00111111B
-	movwf	LCD_cmd
-	call	LCD_write_cmd	    ;display on
+	
 	movlw	10111100B	    ;select page4 in column 1
 	movwf	LCD_cmd
 	call	LCD_write_cmd	    ;send instruction to LCD
@@ -412,7 +400,13 @@ lcdlp1:	decf 	LCD_cnt_l, F, A	; no carry when 0x00 -> 0xff
 	bc 	lcdlp1		; carry, then loop again
 	return			; carry reset so return
 
-    
+LCD_delay1:
+    nop
+    nop
+    nop
+    nop
+    nop
+    return
 
     end
 

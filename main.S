@@ -23,17 +23,16 @@ rst: 	org 0x0
  	goto	setup
 
 	; ******* Programme FLASH read Setup Code ***********************
-setup:	bcf	CFGS	; point to Flash program memory  
-	bsf	EEPGD 	; access Flash program memory
+setup:	
 	call	LCD_Setup	; setup LCD
 	goto	start
 	
 	; ******* Main programme ****************************************
-start: movlw	0x00
-	movwf	TRISJ,A
-	movlw	00000000B
-	movwf	PORTJ,A
-	call	LCD_Clear_Block
+start: ;movlw	0x00
+	;movwf	TRISJ,A
+	;movlw	00000000B
+	;movwf	PORTJ,A
+	;call	LCD_Clear_Block
 	goto	$		; goto current line in code
 
 	; a delay subroutine if you need one, times around loop in delay_count
