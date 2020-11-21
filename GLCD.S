@@ -9,7 +9,7 @@ LCD_cnt_ms:	ds 1   ; reserve 1 byte for ms counter
 LCD_tmp:	ds 1   ; reserve 1 byte for temporary use
 LCD_counter:	ds 1   ; reserve 1 byte for counting through nessage
     
-
+	LCD_RST EQU 5
 	LCD_E	EQU 4	; LCD enable bit
     	LCD_RS	EQU 2	; LCD register select bit
 	LCD_RW	EQU 3	; LCD read/write select bit
@@ -55,29 +55,32 @@ LCD_find_pos:
 	call	LCD_Block12
 	
 LCD_Setup:
-	clrf    LATB, A
-	movlw   11000000B	    ; RB0:5 all outputs (instruction 
-	movwf	TRISB, A
+	clrf    LATB, A	    ; RB0:5 all outputs (instruction 
+	clrf	TRISB, A
 	clrf	LATD,A
 	clrf	TRISD,A		    ; portD all outputs (dataline
+	bsf	PORTB,LCD_RST	    ;relase from reset.
 	movlw	00111110B
 	call	LCD_write_cmd	    ;display off
 	movlw	10		; wait 40us
-	;call	LCD_delay_x4us
+	call	LCD_delay_x4us
+	movlw	00111111B
+	call	LCD_write_cmd	    ;display on
 	movlw	00111111B
 	call	LCD_write_cmd	    ;display on
 	movlw	10		; wait 40us
-	;call	LCD_delay_x4us
+	call	LCD_delay_x4us
 	return
 
 LCD_write_cmd:	    ; Transmits byte stored in W to instruction reg
 	movwf   PORTD, A    ;PORTD now contains the bit configuration for different instructions.
 	movwf   LATD, A	    ; output data bits to LCD
-	bcf	LATB, LCD_RW,A	;data write, RW = 0
-	bcf	LATB, LCD_RS, A	; setting write cmd, RS = 0
+	bcf	PORTB, LCD_RW,A	;data write, RW = 0
+	bcf	PORTB, LCD_RS, A	; setting write cmd, RS = 0
+	call	LCD_delay
 	call    LCD_Enable  ; Pulse enable Bit 
 	movlw	10	    ; delay 40us
-	;call	LCD_delay_x4us
+	call	LCD_delay_x4us
 	return
 
 LCD_write_data:	    ; Transmits byte stored in W to data reg(PORTD ,then to the LCD
@@ -85,9 +88,10 @@ LCD_write_data:	    ; Transmits byte stored in W to data reg(PORTD ,then to the 
 	movwf   LATD, A	    ; output data bits to LCD
 	bcf	PORTB, LCD_RW,A	;data write, RW = 0
 	bsf	PORTB, LCD_RS, A	; Data write set RS = 1
+	call	LCD_delay
 	call    LCD_Enable  ; Pulse enable Bit 
 	movlw	10	    ; delay 40us
-	;call	LCD_delay_x4us
+	call	LCD_delay_x4us
 	return
 LCD_write_1:
 	movlw	0xfe
@@ -279,7 +283,7 @@ LCD_Block12:
 	return	
 	
 LCD_Enable:	    ; pulse enable bit LCD_E for 500ns
-	bcf	LATB, LCD_E, A	    ;put enable low
+	bcf	PORTB, LCD_E, A	    ;put enable low
 	nop
 	nop
 	nop
@@ -288,7 +292,7 @@ LCD_Enable:	    ; pulse enable bit LCD_E for 500ns
 	nop
 	nop
 	nop
-	bsf	LATB, LCD_E, A	    ; Take enable high
+	bsf	PORTB, LCD_E, A	    ; Take enable high
 	nop
 	nop
 	nop
@@ -296,7 +300,14 @@ LCD_Enable:	    ; pulse enable bit LCD_E for 500ns
 	nop
 	nop
 	nop
-	bcf	LATB, LCD_E, A	    ; Writes data to LCD
+	bcf	PORTB, LCD_E, A	    ; Writes data to LCD
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
 	return
     
 ; ** a few delay routines below here as LCD timing can be quite critical ****
@@ -326,6 +337,7 @@ lcdlp1:	decf 	LCD_cnt_l, F, A	; no carry when 0x00 -> 0xff
 	bc 	lcdlp1		; carry, then loop again
 	return			; carry reset so return
 
+    
 
     end
 
