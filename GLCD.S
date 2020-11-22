@@ -5,11 +5,9 @@ global  LCD_Setup,LCD_Write_Block,LCD_Clear_Block
 psect	udata_acs   ; named variables in access ram
 LCD_cnt_l:	ds 1   ; reserve 1 byte for variable LCD_cnt_l
 LCD_cnt_h:	ds 1   ; reserve 1 byte for variable LCD_cnt_h
-LCD_cnt_ms:	ds 1   ; reserve 1 byte for ms counter
-LCD_tmp:	ds 1   ; reserve 1 byte for temporary use
 LCD_counter:	ds 1   ; reserve 1 byte for counting through nessage
-LCD_data:	ds 1	; reserve for LCD data
-LCD_cmd:	ds 1	;reserve for LCD commands
+LCD_data equ 0x10	; reserve for LCD data
+LCD_cmd equ 0x11	;reserve for LCD commands
 	LCD_RST EQU 5	;reset bit
 	LCD_E	EQU 4	; LCD enable bit
     	LCD_RS	EQU 2	; LCD register select bit
@@ -50,25 +48,25 @@ LCD_Setup:
 	clrf	LATD,A
 	clrf	TRISD,A		    ; portD all outputs (dataline
 	bcf	PORTB,LCD_RST
-	movlw	10		; wait 40us
-	call	LCD_delay_x4us
+	;movlw	10		; wait 40us
+	;call	LCD_delay_x4us
 	bsf	PORTB,LCD_RST	    ;relase from reset.
 	movlw	00111110B
 	movwf	LCD_cmd
 	call	LCD_write_cmd	    ;display off
-	movlw	10		; wait 40us
-	call	LCD_delay_x4us
+	;movlw	10		; wait 40us
+	;call	LCD_delay_x4us
 	movlw	00111111B
 	movwf	LCD_cmd
 	call	LCD_write_cmd	    ;display on
 	movlw	11000000B
 	movwf	LCD_cmd
 	call	LCD_write_cmd	    ;start at line 0
-	call	LCD_Clear_all
-	movlw	10		; wait 40us
-	call	LCD_delay_x4us
-	;call	LCD_write_1
-	;call	LCD_Block1
+	;call	LCD_Clear_all
+	;movlw	10		; wait 40us
+	;call	LCD_delay_x4us
+	call	LCD_clear
+	call	LCD_Block1
 	return
 
 LCD_write_cmd:			; Transmits byte stored in W to instruction reg
@@ -76,7 +74,7 @@ LCD_write_cmd:			; Transmits byte stored in W to instruction reg
 	movwf   PORTD, A		;PORTD now contains the bit configuration for different instructions. ; output data bits to LCD
 	bcf	PORTB, LCD_RW,A		;data write, RW = 0
 	bcf	PORTB, LCD_RS, A	; setting write cmd, RS = 0
-	call	LCD_delay1
+	;call	LCD_delay1
 	call    LCD_Enable		; Pulse enable Bit 
 	return
 
@@ -85,7 +83,7 @@ LCD_write_data:			; Transmits byte stored in W to data reg(PORTD ,then to the LC
 	movwf   PORTD, A		; output data bits to LCD
 	bcf	PORTB, LCD_RW,A		;data write, RW = 0
 	bsf	PORTB, LCD_RS, A	; Data write set RS = 1
-	call	LCD_delay1
+	;call	LCD_delay1
 	call    LCD_Enable		; Pulse enable Bit 
 	return
 LCD_write_1:
@@ -369,14 +367,7 @@ LCD_find_pos:
 	call	LCD_Block12
 	return
 ; ** a few delay routines below here as LCD timing can be quite critical ****
-LCD_delay_ms:		    ; delay given in ms in W
-	movwf	LCD_cnt_ms, A
-lcdlp2:	movlw	250	    ; 1 ms delay
-	call	LCD_delay_x4us	
-	decfsz	LCD_cnt_ms, A
-	bra	lcdlp2
-	return
-    
+
 LCD_delay_x4us:		    ; delay given in chunks of 4 microsecond in W
 	movwf	LCD_cnt_l, A	; now need to multiply by 16
 	swapf   LCD_cnt_l, F, A	; swap nibbles
