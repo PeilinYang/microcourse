@@ -1,7 +1,7 @@
 #include <xc.inc>
 
 ; external subroutines
-extrn	LCD_Setup, LCD_Write_Block, LCD_Clear_Block
+extrn	LCD_Setup
 
 psect	data    
 	; ******* myTable, data in programme memory, and its length *****

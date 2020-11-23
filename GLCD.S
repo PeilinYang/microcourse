@@ -1,6 +1,6 @@
 #include <xc.inc>
 
-global  LCD_Setup,LCD_Write_Block,LCD_Clear_Block
+global  LCD_Setup
 
 psect	udata_acs   ; named variables in access ram
 LCD_cnt_l:	ds 1   ; reserve 1 byte for variable LCD_cnt_l
@@ -18,30 +18,7 @@ LCD_cmd equ 0x11	;reserve for LCD commands
 
 psect	lcd_code,class=CODE
 
-LCD_Write_Block:
-	call    LCD_write_1
-	call    LCD_find_pos
-	return
-	
-LCD_Clear_Block:
-	call	LCD_clear
-	call	LCD_find_pos
-	return
-LCD_Clear_all:
-	call	LCD_clear
-	call	LCD_Block1
-	call	LCD_Block2
-	call	LCD_Block3
-	call	LCD_Block4
-	call	LCD_Block5
-	call	LCD_Block6
-	call	LCD_Block7
-	call	LCD_Block8
-	call	LCD_Block9
-	call	LCD_Block10
-	call	LCD_Block11
-	call	LCD_Block12
-	return
+
 LCD_Setup:
 	clrf    LATB, A	    ; RB0:5 all outputs (instruction 
 	clrf	TRISB, A
@@ -107,210 +84,12 @@ LCD_Block1:
 	call	LCD_write_cmd
 	movlw	0x20		    ;want to write in 0-31 cursor positions, 0x20 = 32
 	movwf	LCD_counter,A
-    loop1:
+    loop1:			    ;writes data 32 times ,should fill up 1/4 of an entire line.
 	call	LCD_write_data
 	decfsz	LCD_counter,A
 	bra	loop1
 	return	
-	
-LCD_Block2:
-	bsf	PORTB, LCD_CS1,A    ;select column 0
-	bcf	PORTB, LCD_CS2,A    ;not select column 1
-	call	LCD_Enable
-	movlw	10111000B	    ;select page0 in column 0
-	movwf	LCD_cmd
-	call	LCD_write_cmd	    ;send instruction to LCD
-	movlw	01100000B	    ;start from cursor position 32
-	movwf	LCD_cmd
-	call	LCD_write_cmd
-	movlw	0x20		    ;want to write in 32-63 cursor positions, 0x20 = 32
-	movwf	LCD_counter,A
-    loop2:
-	call	LCD_write_data
-	decfsz	LCD_counter,A
-	bra	loop2
-	return	
-	
-LCD_Block5:
-	bsf	PORTB, LCD_CS1,A    ;select column 0
-	bcf	PORTB, LCD_CS2,A    ;not select column 1
-	call	LCD_Enable
-	movlw	10111010B	    ;select page2 in column 0
-	movwf	LCD_cmd
-	call	LCD_write_cmd	    ;send instruction to LCD
-	movlw	01000000B	    ;start from cursor position 0
-	movwf	LCD_cmd
-	call	LCD_write_cmd
-	movlw	0x20		    ;want to write in 0-31 cursor positions, 0x20 = 32
-	movwf	LCD_counter,A
-    loop5:
-	call	LCD_write_data
-	decfsz	LCD_counter,A
-	bra	loop5
-	return	
-	
-LCD_Block9:
-	bsf	PORTB, LCD_CS1,A    ;select column 0
-	bcf	PORTB, LCD_CS2,A    ;not select column 1
-	call	LCD_Enable
-	movlw	10111100B	    ;select page4 in column 0
-	movwf	LCD_cmd
-	call	LCD_write_cmd	    ;send instruction to LCD
-	movlw	01000000B	    ;start from cursor position 0
-	movwf	LCD_cmd
-	call	LCD_write_cmd
-	movlw	0x20		    ;want to write in 32 cursor positions, 0x20 = 32
-	movwf	LCD_counter,A
-    loop9:
-	call	LCD_write_data
-	decfsz	LCD_counter,A
-	bra	loop9
-	return	
-	
-LCD_Block6:
-	bsf	PORTB, LCD_CS1,A    ;select column 0
-	bcf	PORTB, LCD_CS2,A    ;not select column 1
-	call	LCD_Enable
-	movlw	10111010B	    ;select page2 in column 0
-	movwf	LCD_cmd
-	call	LCD_write_cmd	    ;send instruction to LCD
-	movlw	01100000B	    ;start from cursor position 32
-	movwf	LCD_cmd
-	call	LCD_write_cmd
-	movlw	0x20		    ;want to write in 32-63 cursor positions, 0x20 = 32
-	movwf	LCD_counter,A
-    loop6:
-	call	LCD_write_data
-	decfsz	LCD_counter,A
-	bra	loop6
-	return	
-	
-LCD_Block10:
-	bsf	PORTB, LCD_CS1,A    ;select column 0
-	bcf	PORTB, LCD_CS2,A    ;not select column 1
-	call	LCD_Enable
-	movlw	10111000B	    ;select page4 in column 0
-	movwf	LCD_cmd
-	call	LCD_write_cmd	    ;send instruction to LCD
-	movlw	01100000B	    ;start from cursor position 32
-	movwf	LCD_cmd
-	call	LCD_write_cmd
-	movlw	0x20		    ;want to write in 32-63 cursor positions, 0x20 = 32
-	movwf	LCD_counter,A
-    loop10:
-	call	LCD_write_data
-	decfsz	LCD_counter,A
-	bra	loop10
-	return	
-	
-LCD_Block3:
-	bcf	PORTB, LCD_CS1,A    ; not select column 0
-	bsf	PORTB, LCD_CS2,A    ;select column 1
-	call	LCD_Enable
-	movlw	10111000B	    ;select page0 in column 1
-	movwf	LCD_cmd
-	call	LCD_write_cmd	    ;send instruction to LCD
-	movlw	01000000B	    ;start from cursor position 0
-	movwf	LCD_cmd
-	call	LCD_write_cmd
-	movlw	0x20		    ;want to write in 0-31 cursor positions, 0x20 = 32
-	movwf	LCD_counter,A
-    loop3:
-	call	LCD_write_data
-	decfsz	LCD_counter,A
-	bra	loop3
-	return	
-	
-LCD_Block7:
-	bcf	PORTB, LCD_CS1,A    ; not select column 0
-	bsf	PORTB, LCD_CS2,A    ;select column 1
-	call	LCD_Enable
-	movlw	10111010B	    ;select page2 in column 1
-	movwf	LCD_cmd
-	call	LCD_write_cmd	    ;send instruction to LCD
-	movlw	01000000B	    ;start from cursor position 0
-	movwf	LCD_cmd
-	call	LCD_write_cmd
-	movlw	0x20		    ;want to write in 0-31 cursor positions, 0x20 = 32
-	movwf	LCD_counter,A
-    loop7:
-	call	LCD_write_data
-	decfsz	LCD_counter,A
-	bra	loop7
-	return	
-	
-LCD_Block11:
-	bcf	PORTB, LCD_CS1,A    ;not select column 0
-	bsf	PORTB, LCD_CS2,A    ;select column 1
-	call	LCD_Enable
-	movlw	10111100B	    ;select page4 in column 1
-	movwf	LCD_cmd
-	call	LCD_write_cmd	    ;send instruction to LCD
-	movlw	01000000B	    ;start from cursor position 0
-	movwf	LCD_cmd
-	call	LCD_write_cmd
-	movlw	0x20		    ;want to write in 0-31 cursor positions, 0x20 = 32
-	movwf	LCD_counter,A
-    loop11:
-	call	LCD_write_data
-	decfsz	LCD_counter,A
-	bra	loop11
-	return	
-	
-LCD_Block4:
-	bcf	PORTB, LCD_CS1,A    ;not select column 0
-	bsf	PORTB, LCD_CS2,A    ;select column 1
-	call	LCD_Enable
-	movlw	10111000B	    ;select page0 in column 1
-	movwf	LCD_cmd
-	call	LCD_write_cmd	    ;send instruction to LCD
-	movlw	01100000B	    ;start from cursor position 32
-	movwf	LCD_cmd
-	call	LCD_write_cmd
-	movlw	0x20		    ;want to write in 32-63 cursor positions, 0x20 = 32
-	movwf	LCD_counter,A
-    loop4:
-	call	LCD_write_data
-	decfsz	LCD_counter,A
-	bra	loop4
-	return	
-	
-LCD_Block8:
-	bcf	PORTB, LCD_CS1,A    ;not select column 0
-	bsf	PORTB, LCD_CS2,A    ;select column 1
-	call	LCD_Enable
-	movlw	10111010B	    ;select page2 in column 1
-	movwf	LCD_cmd
-	call	LCD_write_cmd	    ;send instruction to LCD
-	movlw	01100000B	    ;start from cursor position 32
-	movwf	LCD_cmd
-	call	LCD_write_cmd
-	movlw	0x20		    ;want to write in 32-63 cursor positions, 0x20 = 32
-	movwf	LCD_counter,A
-    loop8:
-	call	LCD_write_data
-	decfsz	LCD_counter,A
-	bra	loop8
-	return	
-	
-LCD_Block12:
-	bcf	PORTB, LCD_CS1,A    ;not select column 0
-	bsf	PORTB, LCD_CS2,A    ;select column 1
-	call	LCD_Enable
-	movlw	10111100B	    ;select page4 in column 1
-	movwf	LCD_cmd
-	call	LCD_write_cmd	    ;send instruction to LCD
-	movlw	01100000B	    ;start from cursor position 32
-	movwf	LCD_cmd
-	call	LCD_write_cmd
-	movlw	0x20		    ;want to write in 32-63 cursor positions, 0x20 = 32
-	movwf	LCD_counter,A
-    loop12:
-	call	LCD_write_data
-	decfsz	LCD_counter,A
-	bra	loop12
-	return	
-	
+
 LCD_Enable:	    ; pulse enable bit LCD_E for 500ns
 	bcf	PORTB, LCD_E, A	    ;put enable low
 	nop
@@ -338,34 +117,7 @@ LCD_Enable:	    ; pulse enable bit LCD_E for 500ns
 	nop
 	nop
 	return
-   
-	
-LCD_find_pos:
-	btfsc	PORTH,0
-	call	LCD_Block1
-	btfsc	PORTH,1
-	call	LCD_Block2
-	btfsc	PORTH,2
-	call	LCD_Block3
-	btfsc	PORTH,3
-	call	LCD_Block4
-	btfsc	PORTH,4
-	call	LCD_Block5
-	btfsc	PORTH,5
-	call	LCD_Block6
-	btfsc	PORTH,6
-	call	LCD_Block7
-	btfsc	PORTH,7
-	call	LCD_Block8
-	btfsc	PORTJ,0
-	call	LCD_Block9
-	btfsc	PORTJ,1
-	call	LCD_Block10
-	btfsc	PORTJ,2
-	call	LCD_Block11
-	btfsc	PORTJ,3
-	call	LCD_Block12
-	return
+
 ; ** a few delay routines below here as LCD timing can be quite critical ****
 
 LCD_delay_x4us:		    ; delay given in chunks of 4 microsecond in W
